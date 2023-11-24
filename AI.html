@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .chat-container {
+      max-width: 400px;
+      margin: 50px auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+    }
+
+    .user-input {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #fff;
+    }
+
+    .user-input input {
+      flex: 1;
+      padding: 8px;
+      margin-right: 5px;
+    }
+
+    .user-input button {
+      padding: 8px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="user-input">
+      <input type="text" id="user-input" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+
+    function appendMessage(message, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendMessage() {
+      const userMessage = userInput.value;
+      appendMessage(userMessage, 'You');
+
+      // Call your AI API here (replace 'YOUR_API_KEY' and 'YOUR_MODEL_ID' with your actual values)
+      fetch('https://api.openai.com/v1/engines/davinci/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer YOUR_API_KEY',
+        },
+        body: JSON.stringify({
+          prompt: userMessage,
+          max_tokens: 150,
+          temperature: 0.7,
+          top_p: 1.0,
+          frequency_penalty: 0.0,
+          presence_penalty: 0.0,
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        const aiMessage = data.choices[0].text.trim();
+        appendMessage(aiMessage, 'AI');
+      })
+      .catch(error => console.error('Error:', error));
+
+      userInput.value = '';
+    }
+  </script>
+</body>
+</html>
